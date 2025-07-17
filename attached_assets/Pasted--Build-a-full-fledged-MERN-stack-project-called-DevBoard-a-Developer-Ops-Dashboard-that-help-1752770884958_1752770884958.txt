@@ -1,0 +1,60 @@
+> Build a full-fledged MERN stack project called *"DevBoard", a **Developer Ops Dashboard* that helps developers and DevOps engineers manage and monitor CI/CD pipelines, app health, infra cost, feature flags, and release notes from one interface.
+>
+> ### ✅ Functional Requirements:
+>
+> * *Authentication*:
+>
+>   * Google/GitHub OAuth login
+>   * Role-based access control: Admin, Developer, Viewer
+> * *Dashboard Pages*:
+>
+>   1. *Pipelines View*:
+>
+>      * Fetch status from GitHub Actions
+>      * Show logs, job statuses, commit metadata
+>      * Allow manual re-deploy trigger (via GitHub API)
+>   2. *App Health Monitoring*:
+>
+>      * Pull data from Prometheus or Node Exporter
+>      * Show CPU, memory, uptime, disk usage in charts
+>   3. *Feature Flags*:
+>
+>      * Create/update/delete feature flags (Boolean or % rollout)
+>      * Sync flags with backend (e.g., via a database or configmap)
+>   4. *Release Notes*:
+>
+>      * Auto-fetch GitHub release notes or commits for a given tag
+>      * Markdown viewer
+>   5. *Infra Cost Page*:
+>
+>      * Pull cost breakdown from AWS or GCP Billing API
+>      * Monthly trend graph
+>
+> ### 🗂 Folder Structure (required):
+>
+> * Use client/ for React frontend
+> * Use server/ for Node.js backend (Express + MongoDB)
+> * Include docker/ folder with Dockerfiles and docker-compose.yaml
+> * Include kubernetes/ folder with Helm charts
+> * Include .github/workflows/ci-cd.yml for GitHub Actions pipelines
+>
+> ### 🧱 Technologies:
+>
+> * Frontend: React + Tailwind CSS + Chart.js/Recharts
+> * Backend: Node.js + Express + Mongoose
+> * Database: MongoDB
+> * DevOps:
+>
+>   * Dockerize frontend and backend
+>   * Create Helm charts for Kubernetes deployment
+>   * Use GitHub Actions for CI/CD
+>   * Use Prometheus/Grafana for metrics (optional exporters)
+>   * Integrate Terraform for infra provisioning (optional)
+>
+> ### 🎯 Bonus:
+>
+> * Add dark mode toggle
+> * Add webhook support to auto-refresh pipeline and release data
+> * Protect production controls (e.g., rollback, flags) via RBAC
+>
+> Generate code step-by-step. Start with the backend models and API routes, then the frontend dashboard layout, and then containerization and CI/CD.
