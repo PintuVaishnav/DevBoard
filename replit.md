@@ -23,7 +23,7 @@ Preferred communication style: Simple, everyday language.
 - **Language**: TypeScript with ES modules
 - **Database**: PostgreSQL via Neon serverless
 - **ORM**: Drizzle ORM with Zod schema validation
-- **Authentication**: Replit Auth with OpenID Connect
+- **Authentication**: GoogleAuth And GithubAuth
 - **Session Management**: Express sessions with PostgreSQL store
 
 ### Project Structure
@@ -35,7 +35,7 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication System
-- **Provider**: Replit Auth with OpenID Connect
+- **Provider**: Google And Github
 - **Session Storage**: PostgreSQL-backed sessions using connect-pg-simple
 - **Role-Based Access**: Admin, Developer, and Viewer roles
 - **Middleware**: Authentication middleware for protected routes
@@ -48,6 +48,7 @@ Preferred communication style: Simple, everyday language.
 - **Infrastructure Costs**: Cost tracking and analysis
 - **API Tokens**: Third-party service integrations
 - **Release Notes**: Software release documentation
+- **Github Repos**: All the Connected Repos to your Github Account
 
 ### API Design
 - **RESTful endpoints** for all resources
@@ -65,8 +66,8 @@ Preferred communication style: Simple, everyday language.
 ## Data Flow
 
 ### Authentication Flow
-1. User initiates login via Replit Auth
-2. OpenID Connect authentication with Replit
+1. User initiates login via Google Auth And Github Auth
+2. OpenID Connect authentication with Google or Github
 3. Session creation with PostgreSQL storage
 4. JWT token validation on protected routes
 
@@ -93,7 +94,7 @@ Preferred communication style: Simple, everyday language.
 - **Vite**: Build tool and development server
 
 ### Third-party Integrations
-- **Replit Auth**: Authentication provider
+- **Google Auth**: Authentication provider
 - **Neon**: Serverless PostgreSQL hosting
 - **Radix UI**: Headless UI components
 - **TanStack Query**: Server state management
@@ -108,7 +109,7 @@ Preferred communication style: Simple, everyday language.
 ## Deployment Strategy
 
 ### Development Environment
-- **Replit**: Primary development platform
+- **VS Code**: Primary development platform
 - **Vite Dev Server**: Hot module replacement for frontend
 - **tsx**: TypeScript execution for backend
 - **Database**: Neon serverless PostgreSQL
