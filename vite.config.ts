@@ -1,37 +1,35 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
-import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [
-    react(),
-    runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
-        ]
-      : []),
-  ],
+  // The project’s React code lives here
+  root: path.resolve(__dirname, "client"),
+
+  plugins: [react()],
+
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path.resolve(import.meta.dirname, "shared"),
-      "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      "@": path.resolve(__dirname, "client", "src"),
     },
   },
-  root: path.resolve(import.meta.dirname, "client"),
+
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    // ⬇️  Put the production files in  client/dist
+    outDir: path.resolve(__dirname, "client", "dist"),
     emptyOutDir: true,
   },
+
   server: {
-    fs: {
-      strict: true,
-      deny: ["**/.*"],
+    // Your backend API
+    proxy: {
+      "/api": "http://localhost:5000",
     },
+    // ⬇️  Tell Vite to fall back to index.html for SPA routes
+    spaFallback: true,
   },
 });
