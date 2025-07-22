@@ -3,20 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Play, Eye, Square } from 'lucide-react';
-import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Pipelines() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // ✅ Fixed useQuery: added queryFn with credentials
   const { data: pipelines, isLoading } = useQuery({
     queryKey: ['/api/pipelines'],
+    queryFn: async () => {
+      const res = await fetch('/api/pipelines', {
+        credentials: 'include', // 🔑 include cookies for session auth
+      });
+      if (!res.ok) throw new Error('Failed to fetch pipelines');
+      return res.json();
+    },
   });
 
   const restartPipeline = useMutation({
     mutationFn: async (id: number) => {
-      await apiRequest('PATCH', `/api/pipelines/${id}`, { status: 'running' });
+      await fetch(`/api/pipelines/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'running' }),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/pipelines'] });
@@ -25,7 +37,7 @@ export default function Pipelines() {
         description: "The pipeline has been restarted successfully.",
       });
     },
-    onError: (error) => {
+    onError: () => {
       toast({
         title: "Error",
         description: "Failed to restart pipeline.",
@@ -77,7 +89,7 @@ export default function Pipelines() {
           New Pipeline
         </Button>
       </div>
-      
+
       <Card className="bg-white dark:bg-gray-800 shadow border border-gray-200 dark:border-gray-700">
         <CardHeader className="border-b border-gray-200 dark:border-gray-700">
           <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -89,42 +101,24 @@ export default function Pipelines() {
             <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
               <thead className="bg-gray-50 dark:bg-gray-700">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Pipeline
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Branch
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pipeline</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Branch</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                 {pipelines?.map((pipeline: any) => (
                   <tr key={pipeline.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {pipeline.name}
-                      </div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{pipeline.name}</div>
                       {pipeline.commitMessage && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">
-                          {pipeline.commitMessage}
-                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-xs">{pipeline.commitMessage}</div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(pipeline.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">
-                      {pipeline.branch}
-                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(pipeline.status)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 font-mono">{pipeline.branch}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {pipeline.duration ? formatDuration(pipeline.duration) : '-'}
                     </td>
@@ -159,7 +153,7 @@ export default function Pipelines() {
               </tbody>
             </table>
           </div>
-          
+
           {(!pipelines || pipelines.length === 0) && (
             <div className="text-center py-12">
               <p className="text-gray-500 dark:text-gray-400">No pipelines found</p>

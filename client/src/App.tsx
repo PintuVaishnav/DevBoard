@@ -4,52 +4,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { useAuth } from "@/hooks/useAuth";
-import Dashboard from "@/components/Dashboard";
 import Landing from "@/pages/Landing";
-import Home from "@/pages/Home";
-import Pipelines from "@/pages/Pipelines";
-import Health from "@/pages/Health";
-import Features from "@/pages/Features";
-import Releases from "@/pages/Releases";
-import Costs from "@/pages/Costs";
-import Tokens from "@/pages/Tokens";
+import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
-import { useState } from "react";
-
-function DashboardRouter() {
-  const [currentPage, setCurrentPage] = useState('overview');
-  
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'overview':
-        return <Home />;
-      case 'pipelines':
-        return <Pipelines />;
-      case 'health':
-        return <Health />;
-      case 'features':
-        return <Features />;
-      case 'releases':
-        return <Releases />;
-      case 'costs':
-        return <Costs />;
-      case 'tokens':
-        return <Tokens />;
-      default:
-        return <Home />;
-    }
-  };
-
-  return (
-    <Dashboard>
-      {renderPage()}
-    </Dashboard>
-  );
-}
+import ProtectedRoutes from "@/pages/Protected";
+import { useAuth } from "@/hooks/useAuth";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -61,19 +23,14 @@ function Router() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={DashboardRouter} />
-          <Route path="/pipelines" component={DashboardRouter} />
-          <Route path="/health" component={DashboardRouter} />
-          <Route path="/features" component={DashboardRouter} />
-          <Route path="/releases" component={DashboardRouter} />
-          <Route path="/costs" component={DashboardRouter} />
-          <Route path="/tokens" component={DashboardRouter} />
-        </>
-      )}
+      {/* Public routes */}
+      <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
+
+      {/* Protected Dashboard Routes */}
+      <Route path="/:rest*" component={ProtectedRoutes} />
+
+      {/* Fallback */}
       <Route component={NotFound} />
     </Switch>
   );

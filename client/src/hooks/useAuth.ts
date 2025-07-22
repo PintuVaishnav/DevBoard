@@ -1,14 +1,33 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 
 export function useAuth() {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["/api/auth/user"],
-    retry: false,
-  });
+  const [, navigate] = useLocation();
+  const [user, setUser] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/auth/user", {
+      credentials: "include"
+    })
+      .then(async (res) => {
+        if (res.status === 401) {
+          setUser(null);
+        } else {
+          const userData = await res.json();
+          setUser(userData);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoading(false);
+      });
+  }, []);
 
   return {
-    user,
-    isLoading,
     isAuthenticated: !!user,
+    isLoading,
+    user,
   };
 }

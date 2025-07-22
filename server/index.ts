@@ -1,15 +1,56 @@
-import express, { type Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
+import session from "express-session";
+import passport from "passport";
+import "dotenv/config";
+import "./googleauth";
+import "./githubauth";
+import cors from "cors";
+import { authenticateUser } from "./middleware/authenticateUser";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { db } from "./db";
+import { users } from "@shared/schema";
+import githubRoutes from "./routes/api/github";
 
 const app = express();
+app.set("trust proxy", 1);
+
+// Middlewares
+app.use(authenticateUser);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
+if (!process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET must be set in your .env file");
+}
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    maxAge: 24 * 60 * 60 * 1000,
+  },
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ✅ Mount GitHub route early
+app.use("/api/github", githubRoutes);
+console.log("✅ Mounted /api/github routes");
+
+// ✅ API logger
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: any;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -24,11 +65,7 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
+      if (logLine.length > 80) logLine = logLine.slice(0, 79) + "…";
       log(logLine);
     }
   });
@@ -36,36 +73,99 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const server = await registerRoutes(app);
+// 🔐 Google Auth
+app.get("/auth/google", passport.authenticate("google", {
+  scope: ["profile", "email"]
+}));
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+app.get("/auth/google/callback", passport.authenticate("google", {
+  failureRedirect: "http://localhost:5173/login"
+}), async (req: any, res) => {
+  const email = req.user.emails?.[0]?.value;
+  const avatar = req.user.photos?.[0]?.value;
 
-    res.status(status).json({ message });
-    throw err;
+  await db.insert(users).values({
+    id: req.user.id,
+    provider: "google",
+    name: req.user.displayName,
+    email,
+    avatar
+  }).onConflictDoNothing();
+
+  console.log("✅ Google login successful:", email);
+  res.redirect("http://localhost:5173/pipelines");
+});
+
+// 🔐 GitHub Auth
+app.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
+
+app.get("/auth/github/callback", passport.authenticate("github", {
+  failureRedirect: "http://localhost:5173/login"
+}), async (req: any, res) => {
+  const email = req.user.emails?.[0]?.value;
+  const avatar = req.user.photos?.[0]?.value;
+
+  await db.insert(users).values({
+    id: req.user.id,
+    provider: "github",
+    name: req.user.displayName,
+    email,
+    avatar
+  }).onConflictDoNothing();
+
+  console.log("✅ GitHub login successful:", email);
+  res.redirect("http://localhost:5173/pipelines");
+});
+
+// Authenticated User
+app.get("/api/auth/user", async (req: any, res) => {
+  if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+
+  const user = req.user;
+  const email = user.emails?.[0]?.value || user.email;
+  const avatar = user.photos?.[0]?.value;
+  const name = user.displayName || user.name || "User";
+
+  if (!email) return res.status(400).json({ message: "No email found" });
+
+  await db.insert(users).values({
+    id: user.id,
+    provider: user.provider || "unknown",
+    name,
+    email,
+    avatar,
+  }).onConflictDoNothing();
+
+  return res.json({ id: user.id, name, email, avatar });
+});
+
+// Logout
+app.get("/api/logout", (req, res) => {
+  req.logout(err => {
+    if (err) return res.status(500).json({ message: "Logout failed" });
+    res.redirect("/login");
   });
+});
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+// Global error handler
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status || 500;
+  console.error("💥 Express Error:", err.message);
+  res.status(status).json({ message: err.message || "Internal Server Error" });
+});
+
+// ✅ REGISTER OTHER ROUTES (tokens, pipelines, etc)
+(async () => {
+  await registerRoutes(app); // don't move this before app.use("/api/github")
+
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    await setupVite(app); // Vite dev middleware
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  const port = parseInt(process.env.PORT || "5000", 10);
+  const server = app.listen(port, () => {
+    log(`✅ Server running on http://localhost:${port}`);
   });
 })();
