@@ -1,16 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ExternalLink, GitBranch } from 'lucide-react';
+
+function getRelativeTimeFromNow(dateStr: string) {
+  const date = new Date(dateStr);
+  const diff = Date.now() - date.getTime();
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  if (minutes > 0) return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
+  return `Just now`;
+}
 
 export default function GitHubRepo() {
   const { data: githubRepo, isLoading, error } = useQuery({
     queryKey: ['githubRepo'],
     queryFn: async () => {
-      const res = await fetch('/api/github/repos', {
-        credentials: 'include',
-      });
+      const res = await fetch('/api/github/repos', { credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch GitHub repos');
       return res.json();
     },
@@ -36,7 +50,6 @@ export default function GitHubRepo() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section like Pipelines */}
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">GitHub Repositories</h2>
@@ -46,7 +59,6 @@ export default function GitHubRepo() {
         </div>
       </div>
 
-      {/* Repos Display Card */}
       <Card className="bg-white dark:bg-gray-800 shadow border border-gray-200 dark:border-gray-700">
         <CardHeader className="border-b border-gray-200 dark:border-gray-700">
           <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -54,38 +66,78 @@ export default function GitHubRepo() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          {/* Table Header */}
+          <div className="grid grid-cols-6 px-6 py-3 font-semibold text-sm text-gray-600 dark:text-gray-400 border-b dark:border-gray-700">
+            <span>Name</span>
+            <span>Visibility</span>
+            <span>Language</span>
+            <span>Access</span>
+            <span>Fork</span>
+            <span>Last Updated</span>
+          </div>
+
+          {/* Repo Rows */}
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {githubRepo?.map((repo: any) => (
-              <div key={repo.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-900 transition">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <a
-                      href={repo.html_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 font-medium hover:underline flex items-center"
-                    >
-                      {repo.name}
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </a>
-                    {repo.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        {repo.description}
-                      </p>
-                    )}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <Badge>{repo.visibility}</Badge>
-                      <Badge variant="outline">{repo.language || 'Unknown'}</Badge>
-                      {repo.private && <Badge variant="destructive">Private</Badge>}
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    ⭐ {repo.stargazers_count}
-                  </div>
+              <div
+                key={repo.id}
+                className="grid grid-cols-6 px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
+              >
+                {/* Name */}
+                <div className="font-medium">{repo.name}</div>
+
+                {/* Visibility */}
+                <div>
+                  <Badge
+                    className={
+                      repo.visibility === 'private'
+                        ? 'bg-red-800'
+                        : 'bg-blue-800'
+                    }
+                  >
+                    {repo.visibility}
+                  </Badge>
+                </div>
+
+                {/* Language */}
+                <div>
+                  <Badge variant="outline">{repo.language || 'Unknown'}</Badge>
+                </div>
+
+                {/* Access Button */}
+                <div>
+                  <a
+                    href={repo.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="sm">
+                      View <ExternalLink className="ml-1 h-4 w-4" />
+                    </Button>
+                  </a>
+                </div>
+
+                {/* Fork Button */}
+                <div>
+                  <a
+                    href={`${repo.html_url}/fork`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="sm">
+                      Fork <GitBranch className="ml-1 h-4 w-4" />
+                    </Button>
+                  </a>
+                </div>
+
+                {/* Last Updated */}
+                <div className="whitespace-nowrap">
+                  {getRelativeTimeFromNow(repo.updated_at)}
                 </div>
               </div>
             ))}
 
+            {/* Empty State */}
             {(!githubRepo || githubRepo.length === 0) && (
               <div className="text-center py-12">
                 <p className="text-gray-500 dark:text-gray-400">No repositories found</p>

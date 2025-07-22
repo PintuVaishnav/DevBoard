@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "@/components/ThemeProvider";
@@ -41,6 +41,21 @@ export default function Dashboard({ children }: DashboardProps) {
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showLogout, setShowLogout] = useState(false);
+  const [location, setLocation] = useLocation();
+  const logoutRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (logoutRef.current && !logoutRef.current.contains(event.target as Node)) {
+        setShowLogout(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -80,7 +95,7 @@ export default function Dashboard({ children }: DashboardProps) {
                 DevBoard
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="relative flex items-center space-x-4" ref={logoutRef}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -96,13 +111,30 @@ export default function Dashboard({ children }: DashboardProps) {
               >
                 <Bell className="h-5 w-5" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
+              {/* Settings Dropdown */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                  onClick={() => setShowLogout(!showLogout)}
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+                {showLogout && (
+                  <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700">
+                    <button
+                      onClick={() => {
+                        localStorage.clear(); // Clear token/session
+                        setLocation("/login"); // Redirect to login
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
