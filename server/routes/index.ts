@@ -1,8 +1,10 @@
-// server/routes/index.ts
 import { Express } from "express";
-import tokensRoute from "./tokens";
+import githubRoutes from "./api/github";
+import slackRoutes from "./api/slack";
 
-export async function registerRoutes(app: Express) {
-  app.use("/api/tokens", tokensRoute);
+export function registerRoutes(app: Express) {
+  app.use("/api/github", githubRoutes);
+  app.use("/api/slack", slackRoutes);
+
   return app;
 }

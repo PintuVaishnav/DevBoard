@@ -11,6 +11,7 @@ import { setupVite, serveStatic, log } from "./vite";
 import { db } from "./db";
 import { users } from "@shared/schema";
 import githubRoutes from "./routes/api/github";
+import slackRoutes from "./routes/api/slack";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -45,6 +46,9 @@ app.use(passport.session());
 // ✅ Mount GitHub route early
 app.use("/api/github", githubRoutes);
 console.log("✅ Mounted /api/github routes");
+
+app.use("/api/slack", slackRoutes);
+console.log("✅ Mounted /api/slack routes");
 
 // ✅ API logger
 app.use((req, res, next) => {
