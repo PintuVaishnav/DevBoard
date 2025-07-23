@@ -8,10 +8,7 @@ import {
   Code,
   BarChart3,
   Settings,
-  Cog,
   Heart,
-  Flag,
-  Rocket,
   DollarSign,
   Key,
   Moon,
@@ -20,6 +17,14 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import {
+  SiAmazon,
+  SiGooglecloud,
+  SiDocker,
+  SiGrafana,
+  SiGithubactions,
+  SiGithub,
+} from "react-icons/si";
 import { cn } from "@/lib/utils";
 
 interface DashboardProps {
@@ -28,13 +33,15 @@ interface DashboardProps {
 
 const navigation = [
   { name: "Overview", href: "/overview", icon: BarChart3 },
-  { name: "CI/CD Pipelines", href: "/pipelines", icon: Cog },
+  { name: "CI/CD Pipelines", href: "/pipelines", icon: SiGithubactions },
+  { name: "GCP", href: "/gcp", icon: SiGooglecloud },
+  { name: "AWS", href: "/aws", icon: SiAmazon },
   { name: "App Health", href: "/health", icon: Heart },
-  { name: "Feature Flags", href: "/features", icon: Flag },
-  { name: "Release Notes", href: "/releases", icon: Rocket },
   { name: "Infrastructure Costs", href: "/costs", icon: DollarSign },
   { name: "API Tokens", href: "/tokens", icon: Key },
-  { name: "GitHub Repos", href: "/githubrepo", icon: Code },
+  { name: "GitHub Repos", href: "/githubrepo", icon: SiGithub },
+  { name: "Docker Hub", href: "/dockerhub", icon: SiDocker },
+  { name: "Grafana", href: "/grafana", icon: SiGrafana },
 ];
 
 export default function Dashboard({ children }: DashboardProps) {
@@ -42,19 +49,40 @@ export default function Dashboard({ children }: DashboardProps) {
   const { theme, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<string[]>([]);
+  const [hasUnread, setHasUnread] = useState(false);
   const [location, setLocation] = useLocation();
   const logoutRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Dummy notification for test (remove in prod)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setNotifications((prev) => ["✅ Slack integration test 🔔", ...prev]);
+      setHasUnread(true); // mark unread
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (logoutRef.current && !logoutRef.current.contains(event.target as Node)) {
+      if (
+        logoutRef.current &&
+        !logoutRef.current.contains(event.target as Node)
+      ) {
         setShowLogout(false);
+      }
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -102,16 +130,51 @@ export default function Dashboard({ children }: DashboardProps) {
                 onClick={toggleTheme}
                 className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
               >
-                {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                {theme === "light" ? (
+                  <Moon className="h-5 w-5" />
+                ) : (
+                  <Sun className="h-5 w-5" />
+                )}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-              >
-                <Bell className="h-5 w-5" />
-              </Button>
-              {/* Settings Dropdown */}
+
+              {/* 🔔 Notifications */}
+              <div className="relative" ref={notifRef}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowNotifications((prev) => !prev);
+                    setHasUnread(false); // clear red dot when opened
+                  }}
+                  className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                >
+                  <Bell className="h-5 w-5" />
+                  {hasUnread && (
+                    <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+                  )}
+                </Button>
+
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700 max-h-64 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                        No notifications
+                      </div>
+                    ) : (
+                      notifications.map((note, idx) => (
+                        <div
+                          key={idx}
+                          className="px-4 py-2 text-sm text-gray-800 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700"
+                        >
+                          {note}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* ⚙️ Settings */}
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -125,8 +188,8 @@ export default function Dashboard({ children }: DashboardProps) {
                   <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700">
                     <button
                       onClick={() => {
-                        localStorage.clear(); // Clear token/session
-                        setLocation("/login"); // Redirect to login
+                        localStorage.clear();
+                        setLocation("/login");
                       }}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md"
                     >
