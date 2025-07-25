@@ -13,6 +13,7 @@ import { users } from "@shared/schema";
 import githubRoutes from "./routes/api/github";
 import slackRoutes from "./routes/api/slack";
 import dockerhub from "./routes/api/dockerhub";
+import gcpRoutes from "./routes/api/gcp";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -53,6 +54,10 @@ console.log("✅ Mounted /api/slack routes");
 
 app.use("/api/dockerhub", dockerhub);
 console.log("✅ Mounted /api/dockerhub routes");
+
+app.use("/api/gcp", gcpRoutes);
+console.log("✅ Mounted /api/gcp routes");
+
 
 // ✅ API logger
 app.use((req, res, next) => {
