@@ -12,6 +12,7 @@ import { db } from "./db";
 import { users } from "@shared/schema";
 import githubRoutes from "./routes/api/github";
 import slackRoutes from "./routes/api/slack";
+import dockerhub from "./routes/api/dockerhub";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -49,6 +50,9 @@ console.log("✅ Mounted /api/github routes");
 
 app.use("/api/slack", slackRoutes);
 console.log("✅ Mounted /api/slack routes");
+
+app.use("/api/dockerhub", dockerhub);
+console.log("✅ Mounted /api/dockerhub routes");
 
 // ✅ API logger
 app.use((req, res, next) => {
