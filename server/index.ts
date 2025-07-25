@@ -14,6 +14,7 @@ import githubRoutes from "./routes/api/github";
 import slackRoutes from "./routes/api/slack";
 import dockerhub from "./routes/api/dockerhub";
 import gcpRoutes from "./routes/api/gcp";
+import  helmRoutes from "./routes/api/helm";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -57,6 +58,9 @@ console.log("✅ Mounted /api/dockerhub routes");
 
 app.use("/api/gcp", gcpRoutes);
 console.log("✅ Mounted /api/gcp routes");
+
+app.use("/api/helm", helmRoutes);
+console.log("✅ Mounted /api/helm routes");
 
 
 // ✅ API logger

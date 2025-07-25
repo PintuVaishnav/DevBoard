@@ -6,6 +6,7 @@ import Pipelines from "@/pages/Pipelines";
 import Health from "@/pages/Health";
 import Dockerhub from "@/pages/dockerhub";
 import Gcp from "@/pages/gcp";
+import Helm from "@/pages/helm";
 import Costs from "@/pages/Costs";
 import Tokens from "@/pages/Tokens";
 import NotFound from "@/pages/not-found";
@@ -19,6 +20,7 @@ export default function ProtectedRoutes() {
         <Route path="/health" component={Health} />
         {/* <Route path="/grafana" component={Grafana} />
         <Route path="/aws" component={Aws} /> */}
+        <Route path="/helm" component={Helm} />
         <Route path="/gcp" component={Gcp} /> 
         <Route path="/dockerhub" component={Dockerhub} />
         <Route path="/costs" component={Costs} />
