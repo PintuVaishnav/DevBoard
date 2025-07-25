@@ -24,6 +24,8 @@ import {
   SiGrafana,
   SiGithubactions,
   SiGithub,
+  SiKubernetes,
+  SiHelm,
 } from "react-icons/si";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +44,7 @@ const navigation = [
   { name: "GitHub Repos", href: "/githubrepo", icon: SiGithub },
   { name: "Docker Hub", href: "/dockerhub", icon: SiDocker },
   { name: "Grafana", href: "/grafana", icon: SiGrafana },
+  { name: "HELM", href: "/helm", icon: SiHelm },
 ];
 
 export default function Dashboard({ children }: DashboardProps) {

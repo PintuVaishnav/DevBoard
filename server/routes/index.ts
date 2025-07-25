@@ -3,7 +3,7 @@ import githubRoutes from "./api/github";
 import slackRoutes from "./api/slack";
 import dockerhub from "./api/dockerhub";
 import gcpRoutes from "./api/gcp";
-
+import helmRoutes from "./api/helm";
 
 
 export function registerRoutes(app: Express) {
@@ -11,7 +11,7 @@ export function registerRoutes(app: Express) {
   app.use("/api/slack", slackRoutes);
   app.use("/api/dockerhub", dockerhub);
   app.use("/api/gcp", gcpRoutes);
-
+  app.use("/api/helm", helmRoutes);
 
 
   return app;
