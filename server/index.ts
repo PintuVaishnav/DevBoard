@@ -13,6 +13,7 @@ import { users } from "@shared/schema";
 import githubRoutes from "./routes/api/github";
 import slackRoutes from "./routes/api/slack";
 import dockerhub from "./routes/api/dockerhub";
+import kubernetes from "./routes/api/kubernetes";
 import gcpRoutes from "./routes/api/gcp";
 import  helmRoutes from "./routes/api/helm";
 
@@ -61,6 +62,9 @@ console.log("✅ Mounted /api/gcp routes");
 
 app.use("/api/helm", helmRoutes);
 console.log("✅ Mounted /api/helm routes");
+
+app.use("/api/kubernetes", kubernetes);
+console.log("✅ Mounted /api/kubernetes routes");
 
 
 // ✅ API logger
