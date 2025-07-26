@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 function getRelativeTimeFromNow(dateStr: string) {
   const date = new Date(dateStr);
   const diff = Date.now() - date.getTime();
-
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
@@ -22,10 +21,16 @@ export default function GcpPage() {
   const { data: gcpResources, isLoading, error } = useQuery({
     queryKey: ['gcpResources'],
     queryFn: async () => {
-      const res = await fetch('/api/gcp/resources', { credentials: 'include' });
+      const res = await fetch('/api/gcp/resources', {
+        credentials: 'include',
+        cache: 'no-store',
+      });
       if (!res.ok) throw new Error('Failed to load GCP data');
       return res.json();
     },
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   if (isLoading) {
@@ -52,7 +57,7 @@ export default function GcpPage() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">GCP Resources</h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Virtual machines, storage buckets, and GKE clusters from your GCP project.
+            Virtual machines, storage buckets, and GKE clusters across your GCP projects.
           </p>
         </div>
       </div>
@@ -64,21 +69,20 @@ export default function GcpPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {/* Table Header */}
-          <div className="grid grid-cols-5 px-6 py-3 font-semibold text-sm text-gray-600 dark:text-gray-400 border-b dark:border-gray-700">
+          <div className="grid grid-cols-6 px-6 py-3 font-semibold text-sm text-gray-600 dark:text-gray-400 border-b dark:border-gray-700">
             <span>Name</span>
             <span>Type</span>
             <span>Status</span>
             <span>Zone</span>
             <span>Created</span>
+            <span>Project</span>
           </div>
 
-          {/* Resource Rows */}
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {gcpResources?.map((res: any, i: number) => (
               <div
                 key={i}
-                className="grid grid-cols-5 px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
+                className="grid grid-cols-6 px-6 py-4 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
               >
                 <div className="font-medium">{res.name}</div>
                 <div><Badge>{res.type}</Badge></div>
@@ -97,10 +101,12 @@ export default function GcpPage() {
                 </div>
                 <div>{res.zone}</div>
                 <div className="whitespace-nowrap">{getRelativeTimeFromNow(res.createdAt)}</div>
+                <div className="truncate text-xs text-gray-500 dark:text-gray-400">
+                  {res.projectName || res.projectId || 'Unknown'}
+                </div>
               </div>
             ))}
 
-            {/* Empty State */}
             {(!gcpResources || gcpResources.length === 0) && (
               <div className="text-center py-12">
                 <p className="text-gray-500 dark:text-gray-400">No GCP resources found</p>
