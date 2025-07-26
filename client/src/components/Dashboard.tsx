@@ -45,6 +45,7 @@ const navigation = [
   { name: "Docker Hub", href: "/dockerhub", icon: SiDocker },
   { name: "Grafana", href: "/grafana", icon: SiGrafana },
   { name: "HELM", href: "/helm", icon: SiHelm },
+  { name: "Kubernetes", href: "/kubernetes", icon: SiKubernetes },
 ];
 
 export default function Dashboard({ children }: DashboardProps) {
