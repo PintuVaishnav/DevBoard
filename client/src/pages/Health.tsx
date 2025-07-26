@@ -85,7 +85,7 @@ export default function Health() {
                   <Tooltip formatter={(value) => [`${value.toFixed(1)}%`, 'Memory Usage']} />
                   <Line 
                     type="monotone" 
-                    dataKey="value" 
+                    dataKey="value"  
                     stroke="#10B981" 
                     strokeWidth={2}
                     dot={false}
