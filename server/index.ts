@@ -17,6 +17,7 @@ import kubernetes from "./routes/api/kubernetes";
 import gcpRoutes from "./routes/api/gcp";
 import aws from "./routes/api/aws";
 import helmRoutes from "./routes/api/helm";
+import infraCostsRoute from './routes/api/infra-costs';
 
 const app = express();
 app.set("trust proxy", 1);
@@ -74,6 +75,9 @@ console.log("✅ Mounted /api/kubernetes routes");
 
 app.use("/api/aws", aws);
 console.log("✅ Mounted /api/aws routes");
+
+app.use('/api/infra-costs', infraCostsRoute);
+console.log("✅ Mounted /api/infra-costs routes");
 
 // ✅ API logger
 app.use((req, res, next) => {
