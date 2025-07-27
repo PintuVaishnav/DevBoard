@@ -6,13 +6,15 @@ import { eq } from "drizzle-orm";
 
 const router = Router();
 
-// Use static dev user ID
-const DEV_USER_ID = "dev-user";
+// Middleware must ensure req.user.email is populated
 
 // GET /api/tokens
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const userTokens = await db.select().from(tokens).where(eq(tokens.userId, DEV_USER_ID));
+    const email = req.user?.email;
+    if (!email) return res.status(401).json({ message: "Unauthorized" });
+
+    const userTokens = await db.select().from(tokens).where(eq(tokens.email, email));
     res.json(userTokens);
   } catch (err) {
     console.error("❌ Failed to fetch tokens:", err);
@@ -22,15 +24,18 @@ router.get("/", async (_req, res) => {
 
 // POST /api/tokens
 router.post("/", async (req, res) => {
-  const { service, tokenName, tokenValue, configuration } = req.body;
-
-  if (!service || !tokenName || !tokenValue) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
-
   try {
+    const email = req.user?.email;
+    if (!email) return res.status(401).json({ message: "Unauthorized" });
+
+    const { service, tokenName, tokenValue, configuration } = req.body;
+
+    if (!service || !tokenName || !tokenValue) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     await db.insert(tokens).values({
-      userId: DEV_USER_ID,
+      email,
       service,
       tokenName,
       tokenValue,
@@ -47,8 +52,13 @@ router.post("/", async (req, res) => {
 // DELETE /api/tokens/:id
 router.delete("/:id", async (req, res) => {
   try {
+    const email = req.user?.email;
+    if (!email) return res.status(401).json({ message: "Unauthorized" });
+
     const id = req.params.id;
-    await db.delete(tokens).where(eq(tokens.id, id));
+
+    // Delete only if the token belongs to the user
+    await db.delete(tokens).where(eq(tokens.id, id)).where(eq(tokens.email, email));
     res.status(200).json({ message: "Token deleted" });
   } catch (err) {
     console.error("❌ Failed to delete token:", err);

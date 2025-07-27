@@ -15,27 +15,28 @@ import slackRoutes from "./routes/api/slack";
 import dockerhub from "./routes/api/dockerhub";
 import kubernetes from "./routes/api/kubernetes";
 import gcpRoutes from "./routes/api/gcp";
-import aws from "./routes/api/aws"
-import  helmRoutes from "./routes/api/helm";
+import aws from "./routes/api/aws";
+import helmRoutes from "./routes/api/helm";
 
 const app = express();
 app.set("trust proxy", 1);
 
-// Middlewares
-app.use(authenticateUser);
+// JSON & Form parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// CORS setup
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true,
 }));
 
+// Session config
 if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET must be set in your .env file");
 }
-
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET!,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -45,10 +46,14 @@ app.use(session({
   },
 }));
 
+// Passport init
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Mount GitHub route early
+// ✅ Auth user middleware (after passport)
+app.use(authenticateUser);
+
+// ✅ Mount core integration routes
 app.use("/api/github", githubRoutes);
 console.log("✅ Mounted /api/github routes");
 
@@ -69,7 +74,6 @@ console.log("✅ Mounted /api/kubernetes routes");
 
 app.use("/api/aws", aws);
 console.log("✅ Mounted /api/aws routes");
-
 
 // ✅ API logger
 app.use((req, res, next) => {
@@ -142,7 +146,7 @@ app.get("/auth/github/callback", passport.authenticate("github", {
   res.redirect("http://localhost:5173/pipelines");
 });
 
-// Authenticated User
+// Authenticated User Endpoint
 app.get("/api/auth/user", async (req: any, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
 
@@ -179,14 +183,14 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   res.status(status).json({ message: err.message || "Internal Server Error" });
 });
 
-// ✅ REGISTER OTHER ROUTES (tokens, pipelines, etc)
+// ✅ Mount token/pipeline routes + static/dev frontend
 (async () => {
-  await registerRoutes(app); // don't move this before app.use("/api/github")
+  await registerRoutes(app); // /api/tokens, etc
 
   if (app.get("env") === "development") {
     await setupVite(app); // Vite dev middleware
   } else {
-    serveStatic(app);
+    serveStatic(app); // Serve dist in prod
   }
 
   const port = parseInt(process.env.PORT || "5000", 10);

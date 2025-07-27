@@ -1,8 +1,9 @@
 // server/middleware/authenticateUser.ts
 import { Request, Response, NextFunction } from "express";
 
-export function authenticateUser(req: Request, _res: Response, next: NextFunction) {
-  if (!req.user) {
+export function authenticateUser(req: any, _res: Response, next: NextFunction) {
+  // Only mock user in development mode
+  if (process.env.NODE_ENV === "development" && !req.user) {
     req.user = {
       id: "test-user-id",
       firstName: "Dev",
