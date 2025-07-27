@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/login";
+import registerRoutes from "@/pages/register";
 import NotFound from "@/pages/not-found";
 import ProtectedRoutes from "@/pages/Protected";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +27,7 @@ function Router() {
       {/* Public routes */}
       <Route path="/" component={Landing} />
       <Route path="/login" component={Login} />
+      <Route path="/register" component={registerRoutes} />
 
       {/* Protected Dashboard Routes */}
       <Route path="/:rest*" component={ProtectedRoutes} />

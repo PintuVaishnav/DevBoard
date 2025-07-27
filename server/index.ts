@@ -18,11 +18,12 @@ import gcpRoutes from "./routes/api/gcp";
 import aws from "./routes/api/aws";
 import helmRoutes from "./routes/api/helm";
 import infraCostsRoute from './routes/api/infra-costs';
+import RegisterRoutes from './routes/api/register';
 
 const app = express();
 app.set("trust proxy", 1);
 
-// JSON & Form parsers
+// Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -37,7 +38,7 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET must be set in your .env file");
 }
 app.use(session({
-  secret: process.env.SESSION_SECRET!,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -47,14 +48,17 @@ app.use(session({
   },
 }));
 
-// Passport init
+// Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// ✅ Auth user middleware (after passport)
+// ⬇ Register route for form signup (before authenticateUser)
+app.use('/auth', RegisterRoutes);
+
+// ✅ Auth middleware
 app.use(authenticateUser);
 
-// ✅ Mount core integration routes
+// ✅ Core API routes
 app.use("/api/github", githubRoutes);
 console.log("✅ Mounted /api/github routes");
 
@@ -79,34 +83,32 @@ console.log("✅ Mounted /api/aws routes");
 app.use('/api/infra-costs', infraCostsRoute);
 console.log("✅ Mounted /api/infra-costs routes");
 
-// ✅ API logger
+// 🧠 API Logger
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: any;
+  let capturedJson: any;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+  const originalJson = res.json;
+  res.json = function (body, ...args) {
+    capturedJson = body;
+    return originalJson.apply(res, [body, ...args]);
   };
 
   res.on("finish", () => {
     const duration = Date.now() - start;
     if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-      if (logLine.length > 80) logLine = logLine.slice(0, 79) + "…";
-      log(logLine);
+      let line = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+      if (capturedJson) line += ` :: ${JSON.stringify(capturedJson)}`;
+      if (line.length > 80) line = line.slice(0, 79) + "…";
+      log(line);
     }
   });
 
   next();
 });
 
-// 🔐 Google Auth
+// 🔐 Google OAuth
 app.get("/auth/google", passport.authenticate("google", {
   scope: ["profile", "email"]
 }));
@@ -126,10 +128,10 @@ app.get("/auth/google/callback", passport.authenticate("google", {
   }).onConflictDoNothing();
 
   console.log("✅ Google login successful:", email);
-  res.redirect("http://localhost:5173/pipelines");
+  res.redirect("http://localhost:5173/overview");
 });
 
-// 🔐 GitHub Auth
+// 🔐 GitHub OAuth
 app.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
 
 app.get("/auth/github/callback", passport.authenticate("github", {
@@ -147,10 +149,10 @@ app.get("/auth/github/callback", passport.authenticate("github", {
   }).onConflictDoNothing();
 
   console.log("✅ GitHub login successful:", email);
-  res.redirect("http://localhost:5173/pipelines");
+  res.redirect("http://localhost:5173/overview");
 });
 
-// Authenticated User Endpoint
+// 🧍 Authenticated User Info
 app.get("/api/auth/user", async (req: any, res) => {
   if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
 
@@ -172,7 +174,7 @@ app.get("/api/auth/user", async (req: any, res) => {
   return res.json({ id: user.id, name, email, avatar });
 });
 
-// Logout
+// 🚪 Logout
 app.get("/api/logout", (req, res) => {
   req.logout(err => {
     if (err) return res.status(500).json({ message: "Logout failed" });
@@ -180,25 +182,25 @@ app.get("/api/logout", (req, res) => {
   });
 });
 
-// Global error handler
+// 🧨 Error handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   const status = err.status || 500;
   console.error("💥 Express Error:", err.message);
   res.status(status).json({ message: err.message || "Internal Server Error" });
 });
 
-// ✅ Mount token/pipeline routes + static/dev frontend
+// 🚀 Final Mount + Dev/Prod switch
 (async () => {
-  await registerRoutes(app); // /api/tokens, etc
+  await registerRoutes(app); // /api/tokens etc.
 
   if (app.get("env") === "development") {
-    await setupVite(app); // Vite dev middleware
+    await setupVite(app);
   } else {
-    serveStatic(app); // Serve dist in prod
+    serveStatic(app);
   }
 
   const port = parseInt(process.env.PORT || "5000", 10);
-  const server = app.listen(port, () => {
+  app.listen(port, () => {
     log(`✅ Server running on http://localhost:${port}`);
   });
 })();

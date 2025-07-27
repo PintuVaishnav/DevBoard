@@ -20,7 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/auth/google/callback", passport.authenticate("google", {
     failureRedirect: "/login",
-    successRedirect: "/pipelines" // ✅ dashboard page
+    successRedirect: "/overview" // ✅ dashboard page
   }));
 
   // ✅ GitHub Auth Init + Callback
@@ -28,7 +28,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/auth/github/callback", passport.authenticate("github", {
     failureRedirect: "/login",
-    successRedirect: "/pipelines"
+    successRedirect: "/overview"
   }));
 
   // ✅ Generic failure route
