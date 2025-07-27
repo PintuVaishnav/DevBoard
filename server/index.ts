@@ -15,6 +15,7 @@ import slackRoutes from "./routes/api/slack";
 import dockerhub from "./routes/api/dockerhub";
 import kubernetes from "./routes/api/kubernetes";
 import gcpRoutes from "./routes/api/gcp";
+import aws from "./routes/api/aws"
 import  helmRoutes from "./routes/api/helm";
 
 const app = express();
@@ -65,6 +66,9 @@ console.log("✅ Mounted /api/helm routes");
 
 app.use("/api/kubernetes", kubernetes);
 console.log("✅ Mounted /api/kubernetes routes");
+
+app.use("/api/aws", aws);
+console.log("✅ Mounted /api/aws routes");
 
 
 // ✅ API logger

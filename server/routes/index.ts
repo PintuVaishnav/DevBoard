@@ -5,6 +5,7 @@ import dockerhub from "./api/dockerhub";
 import gcpRoutes from "./api/gcp";
 import helmRoutes from "./api/helm";
 import kubernetes from "./api/kubernetes";
+import aws from "./api/aws"
 
 
 export function registerRoutes(app: Express) {
@@ -14,6 +15,7 @@ export function registerRoutes(app: Express) {
   app.use("/api/gcp", gcpRoutes);
   app.use("/api/helm", helmRoutes);
   app.use("/api/kubernetes", kubernetes);
+  app.use("/api/aws",aws);
 
 
   return app;
