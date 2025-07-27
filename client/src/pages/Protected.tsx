@@ -20,7 +20,6 @@ export default function ProtectedRoutes() {
         <Route path="/overview" component={Overview} />
         <Route path="/pipelines" component={Pipelines} />
         <Route path="/health" component={Health} />
-        {/* <Route path="/grafana" component={Grafana} />*/}
         <Route path="/aws" component={Aws} /> 
         <Route path="/helm" component={Helm} />
         <Route path="/gcp" component={Gcp} /> 

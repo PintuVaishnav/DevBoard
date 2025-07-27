@@ -21,7 +21,6 @@ import {
   SiAmazon,
   SiGooglecloud,
   SiDocker,
-  SiGrafana,
   SiGithubactions,
   SiGithub,
   SiKubernetes,
@@ -43,7 +42,6 @@ const navigation = [
   { name: "API Tokens", href: "/tokens", icon: Key },
   { name: "GitHub Repos", href: "/githubrepo", icon: SiGithub },
   { name: "Docker Hub", href: "/dockerhub", icon: SiDocker },
-  { name: "Grafana", href: "/grafana", icon: SiGrafana },
   { name: "HELM", href: "/helm", icon: SiHelm },
   { name: "Kubernetes", href: "/kubernetes", icon: SiKubernetes },
 ];
