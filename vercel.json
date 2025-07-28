@@ -2,8 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+ "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://devboard-tbrw.onrender.com/api/$1" },
+    { "source": "/auth/(.*)", "destination": "https://devboard-tbrw.onrender.com/auth/$1" },
+    { "source": "/(.*)", "destination": "/" }
   ]
 }
 
