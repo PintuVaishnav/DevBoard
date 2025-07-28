@@ -114,7 +114,7 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${clientURL}/login`,
+    failureRedirect: `https://dev-board-psi.vercel.app/login`,
   }),
   async (req: any, res) => {
     const email = req.user.emails?.[0]?.value;
@@ -144,7 +144,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: `${clientURL}/login`,
+    failureRedirect: `https://dev-board-psi.vercel.app/login`,
   }),
   async (req: any, res) => {
     const email = req.user.emails?.[0]?.value;
