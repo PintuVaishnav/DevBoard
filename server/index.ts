@@ -134,7 +134,7 @@ app.get(
       })
       .onConflictDoNothing();
 
-    res.redirect(`${clientURL}/overview`);
+    res.redirect(`https://dev-board-psi.vercel.app/overview`);
   }
 );
 
@@ -164,7 +164,7 @@ app.get(
       })
       .onConflictDoNothing();
 
-    res.redirect(`${clientURL}/overview`);
+    res.redirect(`https://dev-board-psi.vercel.app/overview`);
   }
 );
 
