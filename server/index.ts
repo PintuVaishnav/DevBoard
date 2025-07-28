@@ -30,10 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 // CORS setup
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? "https://dev-board-psi.vercel.app/"
-        : "http://localhost:5173",
+    origin: "https://dev-board-psi.vercel.app/",
     credentials: true,
   })
 );
@@ -104,7 +101,7 @@ app.use((req, res, next) => {
 const clientURL =
   process.env.NODE_ENV === "production"
     ? "https://dev-board-psi.vercel.app/"
-    : "http://localhost:5173";
+    : "";
 
 // 🔐 Google OAuth
 app.get(
