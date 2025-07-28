@@ -3,33 +3,25 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// Needed to simulate __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  // The project’s React code lives here
-  root: path.resolve(__dirname, "client"),
-
+  root: path.resolve(__dirname, "client"), // Set Vite root to client/
   plugins: [react()],
-
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "client", "src"),
+      "@": path.resolve(__dirname, "client", "src"), // Use @ for client/src
     },
   },
-
   build: {
-    // ⬇️  Put the production files in  client/dist
-    outDir: path.resolve(__dirname, "client", "dist"),
+    outDir: path.resolve(__dirname, "client", "dist"), // Build into client/dist
     emptyOutDir: true,
   },
-
   server: {
-    // Your backend API
     proxy: {
-      "/api": "http://localhost:5000",
+      "/api": "http://localhost:5000", // Proxy API calls to Express backend
     },
-    // ⬇️  Tell Vite to fall back to index.html for SPA routes
-    spaFallback: true,
   },
 });
