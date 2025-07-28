@@ -2,7 +2,7 @@
 
 A personal DevOps dashboard designed to simplify, centralize, and streamline your entire development workflow. **DevBoard** gives you real-time visibility into Docker, Kubernetes, Helm,CI/CD Pipelines, GCP infrastructure usage, Costs and More — all from a single unified platform.
 
-![Preview Image](https://raw.githubusercontent.com/PintuVaishanv/post-images/refs/heads/main/your-devboard-preview.png)
+![Preview Image](https://raw.githubusercontent.com/PintuVaishanv/post-images/refs/heads/main/5c58188f-c380-42e4-ac1a-29a2dd3d741a.png)
 
 ---
 
