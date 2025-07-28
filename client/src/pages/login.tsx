@@ -4,17 +4,15 @@ import { Label } from "@/components/ui/label";
 import { Github, Mail, Lock, ShieldCheck } from "lucide-react";
 
 export default function Login() {
- const BASE_API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const handleGoogleLogin = () => {
+    
+    window.location.href = "https://devboard-tbrw.onrender.com/auth/google";
+    
+  };
 
-const handleGoogleLogin = () => {
-  window.location.href = `${BASE_API_URL}/auth/google`;
-};
-
-const handleGithubLogin = () => {
-  window.location.href = `${BASE_API_URL}/auth/github`;
-};
-
+  const handleGithubLogin = () => {
+     window.location.href = "https://devboard-tbrw.onrender.com/auth/github";
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
