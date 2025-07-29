@@ -41,14 +41,16 @@ Preferred communication style: Simple, everyday language.
 - **Middleware**: Authentication middleware for protected routes
 
 ### Database Schema
-- **Users**: Profile information and roles
-- **Pipelines**: CI/CD pipeline status and metadata
-- **Feature Flags**: Boolean and percentage-based feature toggles
-- **Health Metrics**: Application performance monitoring data
-- **Infrastructure Costs**: Cost tracking and analysis
-- **API Tokens**: Third-party service integrations
-- **Release Notes**: Software release documentation
-- **Github Repos**: All the Connected Repos to your Github Account
+- **Users**: Profile information, access roles, and session activity tracking.
+- **Pipelines**: CI/CD pipeline statuses, build metadata, and failure/success insights.
+- **Helm**: Monitor Helm charts, releases, and service deployments in connected clusters.
+- **Health Metrics**: View real-time application performance and system health indicators.
+- **Infrastructure Costs**: Track and visualize infrastructure spending (GCP for now, AWS soon).
+- **API Tokens**: Manage secure integration tokens for external APIs and services.
+- **Kubernetes**: Monitor cluster resources, pods, namespaces, and deployment health.
+- **GitHub Repos**: View and manage all repositories connected to your GitHub account.
+- **Docker Hub**: Display all linked Docker images, tags, and pull stats from your Docker Hub.
+
 
 ### API Design
 - **RESTful endpoints** for all resources
@@ -121,9 +123,23 @@ Preferred communication style: Simple, everyday language.
 - **Assets**: Served from dist/public directory
 
 ### Environment Configuration
-- **DATABASE_URL**: PostgreSQL connection string
-- **SESSION_SECRET**: Session encryption key
-- **REPL_ID**: Replit authentication identifier
-- **NODE_ENV**: Environment mode (development/production)
+
+DATABASE_URL=postgresql://<username>:<password>@<host>/<dbname>?sslmode=require&channel_binding=require
+
+REPLIT_DOMAINS=localhost:5000
+
+GOOGLE_CLIENT_ID=<your_google_client_id>
+GOOGLE_CLIENT_SECRET=<your_google_client_secret>
+
+SESSION_SECRET=<your_session_secret>
+
+NEXTAUTH_URL=http://localhost:3000
+
+GITHUB_CLIENT_ID=<your_github_client_id>
+GITHUB_CLIENT_SECRET=<your_github_client_secret>
+
+DOCKER_USERNAME=<your_dockerhub_username>
+DOCKER_TOKEN=<your_dockerhub_access_token>
+
 
 The application is designed to be scalable and maintainable, with clear separation of concerns between frontend and backend, comprehensive type safety, and modern development practices throughout the stack.
