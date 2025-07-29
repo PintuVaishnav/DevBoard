@@ -90,7 +90,7 @@ To use Google Login:
 3. **Install Required Dependencies**
 
    ```bash
-   npm i
+   npm install
    ```
 
 4. **Set up your Neon Database**
