@@ -6,12 +6,12 @@ import { Github, Mail, Lock, ShieldCheck } from "lucide-react";
 export default function Login() {
   const handleGoogleLogin = () => {
     
-    window.location.href = "https://devboard-tbrw.onrender.com/auth/google";
+    window.location.href = "http:///localhost:5000/auth/google";
     
   };
 
   const handleGithubLogin = () => {
-     window.location.href = "https://devboard-tbrw.onrender.com/auth/github";
+     window.location.href = "http:///localhost:5000/auth/github";
   };
 
   return (
