@@ -104,15 +104,30 @@ To use Google Login:
    - Make sure your backend is configured to use PostgreSQL.
 <br>
 
-5. **Configure Environment Variables**
+### ⚙️ Environment Variables Setup
 
-   - A `.env(demo)` file is provided in the root folder.
-   - Copy it and rename it to `.env`, then fill in your own credentials.
-   <br>
+To run this project locally, you need to create a `.env` file in the root directory with your own credentials.
 
-   ```bash
-   cp .env\(demo\) .env
-   ```
+### 📄 Create a `.env` file in root folder and add the following:
+
+```env
+DATABASE_URL=postgresql://<username>:<password>@<host>/<dbname>?sslmode=require&channel_binding=require
+
+REPLIT_DOMAINS=localhost:5000
+
+GOOGLE_CLIENT_ID=<your_google_client_id>
+GOOGLE_CLIENT_SECRET=<your_google_client_secret>
+
+SESSION_SECRET=<your_session_secret>
+
+NEXTAUTH_URL=http://localhost:3000
+
+GITHUB_CLIENT_ID=<your_github_client_id>
+GITHUB_CLIENT_SECRET=<your_github_client_secret>
+
+DOCKER_USERNAME=<your_dockerhub_username>
+DOCKER_TOKEN=<your_dockerhub_access_token>
+```
 
 6. **Start the Backend Server**
 
@@ -133,20 +148,10 @@ To use Google Login:
 2. **Install Dependencies from root folder**
 
    ```bash
-   npm i
+   npm install
    ```
 
-3. **Configure Environment Variables**
-
-   - A `.env(demo)` file is provided in the root folder.
-   - Copy it and rename it to `.env`, then fill in your own credentials.
-   <br>
-
-   ```bash
-   cp .env\(demo\) .env
-   ```
-
-4. **Launch the Development Server**
+3. **Launch the Development Server**
 
    ```bash
    npx vite --config vite.config.ts
