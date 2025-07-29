@@ -55,8 +55,11 @@ To use Google Login:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create new OAuth 2.0 credentials.
-3. Set the redirect URI to `http://localhost:3000/auth/google`
+3. Set the redirect URI to
+```
+`http://localhost:3000/auth/google`
 `http://localhost:5000/auth/google`
+```
 
 ### 🐙 GitHub OAuth Setup
 
@@ -64,7 +67,10 @@ To use Google Login:
 2. Click **"New OAuth App"**
 3. Fill in the details:
    - **Application name:** DevBoard (or any name you prefer)
-   - **Homepage URL:** `http://localhost:5000`
+   - **Homepage URL:**
+```
+     `http://localhost:5000`
+```
    - **Authorization callback URL:**
      ```
      http://localhost:5000/auth/github
