@@ -69,7 +69,7 @@ http://localhost:5000/auth/google
    - **Application name:** DevBoard (or any name you prefer)
    - **Homepage URL:**
 ```
-     http://localhost:5000
+http://localhost:5000
 ```
    - **Authorization callback URL:**
      ```
