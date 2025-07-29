@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 // CORS setup
 app.use(
   cors({
-    origin: "https://dev-board-psi.vercel.app/",
+    origin: "http:///localhost:5000",
     credentials: true,
   })
 );
@@ -100,7 +100,7 @@ app.use((req, res, next) => {
 // ✅ Redirect URLs
 const clientURL =
   process.env.NODE_ENV === "production"
-    ? "https://dev-board-psi.vercel.app/"
+    ? "http:///localhost:5000"
     : "";
 
 // 🔐 Google OAuth
@@ -114,7 +114,7 @@ app.get(
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `https://dev-board-psi.vercel.app/login`,
+    failureRedirect: `http:///localhost:5000/login`,
   }),
   async (req: any, res) => {
     const email = req.user.emails?.[0]?.value;
@@ -131,7 +131,7 @@ app.get(
       })
       .onConflictDoNothing();
 
-    res.redirect(`https://dev-board-psi.vercel.app/overview`);
+    res.redirect(`http:///localhost:5173/overview`);
   }
 );
 
@@ -144,7 +144,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: `https://dev-board-psi.vercel.app/login`,
+    failureRedirect: `http:///localhost:5000/login`,
   }),
   async (req: any, res) => {
     const email = req.user.emails?.[0]?.value;
@@ -161,7 +161,7 @@ app.get(
       })
       .onConflictDoNothing();
 
-    res.redirect(`https://dev-board-psi.vercel.app/overview`);
+    res.redirect(`http:///localhost:5173/overview`);
   }
 );
 
